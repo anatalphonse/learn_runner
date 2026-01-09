@@ -26,13 +26,18 @@ COPY entrypoint.sh ./
 RUN chmod +x ./entrypoint.sh
 
 # 5. Give the 'runner' user ownership of all files
-# This is crucial so the runner can overwrite files if it ever DOES need to update
 RUN chown -R runner:runner /home/runner
 
-# 6. Ensure the runner user is in the docker group
-RUN usermod -aG docker runner
+# --- THE FIX FOR GID 120 ---
+# 6. Change the container's docker group to match the host (120)
+# We use '|| true' just in case group 120 is already taken, preventing a build crash
+RUN groupmod -g 120 docker || true
 
-# 7. Switch from root to the runner user
+# 7. Add runner to this updated group
+RUN usermod -aG docker runner
+# ---------------------------
+
+# 8. Switch from root to the runner user
 USER runner
 
 ENTRYPOINT ["./entrypoint.sh"]

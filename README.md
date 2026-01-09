@@ -131,18 +131,14 @@ The `github_runner/Dockerfile` copies a `.env` file into the image:
 This file is expected to provide the necessary values for `entrypoint.sh` to register the runner. A typical `.env` for a repo-level runner might look like:
 
 ```bash
-GITHUB_URL=https://github.com/your-username/your-repo
-RUNNER_NAME=learn-runner-1
-RUNNER_LABELS=self-hosted,linux,x64
-GITHUB_TOKEN=ghr_XXXXXXXXXXXXXXXXXXXXXXXXXXXX
+REPO_URL=https://github.com/YOUR_USER/YOUR_REPO
+RUNNER_TOKEN=YOUR_TOKEN_FROM_GITHUB
 ```
 
 Where:
 
-- **`GITHUB_URL`**: Repository or organization URL where the runner will be registered.
-- **`RUNNER_NAME`**: Friendly name for the runner as it appears in GitHub.
-- **`RUNNER_LABELS`**: Comma-separated labels for targeting in workflows.
-- **`GITHUB_TOKEN`**: Short-lived registration token generated via GitHub’s UI. (Do **not** confuse this with a long-lived PAT; use the runner registration token.)
+- **`REPO_URL`**: Repository or organization URL where the runner will be registered.
+- **`RUNNER_TOKEN`**: Short-lived registration token generated via GitHub’s UI. (Do **not** confuse this with a long-lived PAT; use the runner registration token.)
 
 > See the **GitHub Docs**: “Adding self-hosted runners” for the exact registration commands and latest guidance.
 
@@ -363,8 +359,8 @@ Common tasks:
 
 - **Runner does not appear in GitHub**
   - Check `docker compose logs -f gh-runner` for registration errors.
-  - Ensure `GITHUB_TOKEN` in `.env` is a **runner registration token**, not a PAT.
-  - Confirm `GITHUB_URL` points to the correct repository or organization.
+  - Ensure `RUNNER_TOKEN` in `.env` is a **runner registration token**, not a PAT.
+  - Confirm `REPO_URL` points to the correct repository or organization.
 
 - **Jobs fail with Docker permission errors**
   - Verify `/var/run/docker.sock` is correctly mounted in `docker-compose.yml`.

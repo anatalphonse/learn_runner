@@ -1,28 +1,40 @@
 name: CI/CD Pipeline
+
 on:
   push:
-    branches: [ main ]
+    branches: [ "main" ]
 
 jobs:
   build-and-deploy:
+    # This targets your Dockerized runner on the Ubuntu server
     runs-on: self-hosted
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # We specify the context as 'frontend' because that is where the code lives
       - name: Build Frontend Image
         run: |
+          # Enable BuildKit for better performance/caching
+          export DOCKER_BUILDKIT=1
+          
+          # Build the image from the 'frontend' folder context
           docker build -t my-frontend:latest ./frontend
 
       - name: Deploy Frontend Container
         run: |
-          # Stop existing container if it's running
+          echo "Deploying new container..."
+          
+          # 1. Stop the running container (if any) and ignore error if it doesn't exist
           docker stop frontend-app || true
+          
+          # 2. Remove the stopped container to free up the name
           docker rm frontend-app || true
           
-          # Run the new version
-          # Note: Map port 81 (from your Dockerfile) to 80 (or 81) on the server
+          # 3. Run the new container
+          # -d : Detached mode (background)
+          # --restart always : Auto-restart if server reboots or app crashes
+          # -p 3001:80 : Map Server Port 3001 to Container Port 80 (Nginx default)
           docker run -d \
             --name frontend-app \
             --restart always \
@@ -30,4 +42,5 @@ jobs:
             my-frontend:latest
 
       - name: Cleanup Old Images
+        # Crucial for saving disk space on small servers
         run: docker image prune -f

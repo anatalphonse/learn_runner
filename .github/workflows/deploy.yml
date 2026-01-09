@@ -15,9 +15,6 @@ jobs:
 
       - name: Build Frontend Image
         run: |
-          # Enable BuildKit for better performance/caching
-          export DOCKER_BUILDKIT=1
-          
           # Build the image from the 'frontend' folder context
           docker build -t my-frontend:latest ./frontend
 

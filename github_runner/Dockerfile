@@ -14,26 +14,25 @@ RUN useradd -m runner && \
 
 WORKDIR /home/runner
 
-# 3. Download Runner
-RUN curl -o actions-runner-linux-x64-2.311.0.tar.gz -L \
-    https://github.com/actions/runner/releases/download/v2.311.0/actions-runner-linux-x64-2.311.0.tar.gz \
-    && tar xzf ./actions-runner-linux-x64-2.311.0.tar.gz \
+# 3. Download Runner (UPDATED to v2.321.0 to stop auto-update crash)
+RUN curl -o actions-runner-linux-x64-2.321.0.tar.gz -L \
+    https://github.com/actions/runner/releases/download/v2.321.0/actions-runner-linux-x64-2.321.0.tar.gz \
+    && tar xzf ./actions-runner-linux-x64-2.321.0.tar.gz \
     && ./bin/installdependencies.sh
 
-# 4. Copy files
+# 4. Copy files (Method 2)
 COPY .env ./ 
 COPY entrypoint.sh ./
 RUN chmod +x ./entrypoint.sh
 
-# --- THE FIX STARTS HERE ---
 # 5. Give the 'runner' user ownership of all files
+# This is crucial so the runner can overwrite files if it ever DOES need to update
 RUN chown -R runner:runner /home/runner
 
-# 6. Ensure the runner user is in the docker group (to use the socket)
+# 6. Ensure the runner user is in the docker group
 RUN usermod -aG docker runner
 
 # 7. Switch from root to the runner user
 USER runner
-# ---------------------------
 
 ENTRYPOINT ["./entrypoint.sh"]

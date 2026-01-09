@@ -1,23 +1,9 @@
+version: '3.8'
 services:
-
-  # The GitHub Runner (The "Brain")
-  github-runner:
+  gh-runner:
     build: ./github_runner
     restart: always
-    environment:
-      - REPO_URL=https://github.com/user/repo
-      - RUNNER_TOKEN=jhjhhb 
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock # This allows the runner to start the app container
-
-
-  react-app:
-    build:
-      context: ./frontend      # Points Docker to the folder containing the Dockerfile
-      dockerfile: Dockerfile   # Looks for 'Dockerfile' inside the context folder
-    ports:
-      - "5173:5173"    # Anonymous volume to protect container-side modules
-    environment:
-      - CHOKIDAR_USEPOLLING=true
-    stdin_open: true
-    tty: true
+      - /var/run/docker.sock:/var/run/docker.sock
+    # This allows the runner to run docker commands on the host OS
+    privileged: true

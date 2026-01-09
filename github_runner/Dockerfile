@@ -1,24 +1,32 @@
 FROM ubuntu:20.04
 
-# Avoid prompts during installation
+# Prevent interactive prompts during installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install dependencies
+# 1. Install necessary tools and Docker CLI
 RUN apt-get update && apt-get install -y \
-    curl sudo git jq build-essential libssl-dev libffi-dev python3 python3-venv \
-    docker.io
+    curl sudo git jq tar libicu66 docker.io
 
-# Create a runner user
-RUN useradd -m runner
+# 2. Create a user for the runner
+RUN useradd -m runner && \
+    usermod -aG sudo runner && \
+    echo "%sudo ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
 
-# Download the GitHub Actions Runner (Update version as needed)
 WORKDIR /home/runner
-RUN curl -o actions-runner-linux-x64.tar.gz -L https://github.com/actions/runner/releases/download/v2.311.0/actions-runner-linux-x64-2.311.0.tar.gz \
-    && tar xzf ./actions-runner-linux-x64.tar.gz
 
-# Install dependencies required by the runner
-RUN ./bin/installdependencies.sh
+# 3. Download the GitHub Runner package
+RUN curl -o actions-runner-linux-x64-2.311.0.tar.gz -L \
+    https://github.com/actions/runner/releases/download/v2.311.0/actions-runner-linux-x64-2.311.0.tar.gz \
+    && tar xzf ./actions-runner-linux-x64-2.311.0.tar.gz \
+    && ./bin/installdependencies.sh
 
-USER runner
+# --- METHOD 2 SPECIFIC STEPS ---
+# 4. Copy the .env file and the startup script
+# Ensure your .env file is in the 'github_runner' folder before building
+COPY .env ./ 
 COPY entrypoint.sh ./
+RUN chmod +x ./entrypoint.sh
+# -------------------------------
+
+RUN usermod -aG docker runner
 ENTRYPOINT ["./entrypoint.sh"]

@@ -1,0 +1,33 @@
+name: CI/CD Pipeline
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      # We specify the context as 'frontend' because that is where the code lives
+      - name: Build Frontend Image
+        run: |
+          docker build -t my-frontend:latest ./frontend
+
+      - name: Deploy Frontend Container
+        run: |
+          # Stop existing container if it's running
+          docker stop frontend-app || true
+          docker rm frontend-app || true
+          
+          # Run the new version
+          # Note: Map port 81 (from your Dockerfile) to 80 (or 81) on the server
+          docker run -d \
+            --name frontend-app \
+            --restart always \
+            -p 3001:80 \
+            my-frontend:latest
+
+      - name: Cleanup Old Images
+        run: docker image prune -f

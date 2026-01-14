@@ -14,10 +14,10 @@ RUN useradd -m runner && \
 
 WORKDIR /home/runner
 
-# 3. Download the version GitHub is demanding (2.330.0)
-RUN curl -o actions-runner-linux-x64-2.330.0.tar.gz -L \
-    https://github.com/actions/runner/releases/download/v2.330.0/actions-runner-linux-x64-2.330.0.tar.gz \
-    && tar xzf ./actions-runner-linux-x64-2.330.0.tar.gz \
+# 3. Download the version GitHub is demanding (2.331.0)
+RUN curl -o actions-runner-linux-x64-2.331.0.tar.gz -L \
+    https://github.com/actions/runner/releases/download/v2.331.0/actions-runner-linux-x64-2.331.0.tar.gz \
+    && tar xzf ./actions-runner-linux-x64-2.331.0.tar.gz \
     && ./bin/installdependencies.sh
 
 # 4. Copy files (Method 2)
